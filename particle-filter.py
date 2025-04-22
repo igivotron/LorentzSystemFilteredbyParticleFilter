@@ -18,7 +18,7 @@ Oui j'ai utilisé ce mode de commentaires pour te faire chier
 '''
 
 class LorentzParticlesFilter:
-    def __init__(self, observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta):
+    def __init__(self, observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta, resampling_algorithm="multinomial"):
         self.size = len(observations)
         self.observations = observations
         self.N = N
@@ -31,6 +31,16 @@ class LorentzParticlesFilter:
         self.beta = beta
         self.filtered_states = np.zeros((self.size, 3))
         self.filtered_states[0] = initial_state
+        self.resampling_treshold = self.N / 10
+        self.resampling = None
+        if resampling_algorithm == "multinomial":
+            self.resampling = self.multinommial_resampling
+        elif resampling_algorithm == "residual":
+            self.resampling = self.residual_resampling
+        elif resampling_algorithm == "systematic":
+            self.resampling = self.systematic_resampling
+        else:
+            raise NotImplementedError()
     
     def f(self, state):
         x, y, z = state
@@ -62,7 +72,41 @@ class LorentzParticlesFilter:
             weights /= np.sum(weights)
             # Step 7 (Dot c'est quand même plus rapide que de faire une boucle for)
             self.filtered_states[n] = np.dot(weights, samples)
+
+            if 1 / np.dot(weights, weights) < self.resampling_treshold:
+                samples = self.resampling(samples, weights)
+                weights = np.ones(self.N) / self.N
+        
         return self.filtered_states
+
+    def multinommial_resampling(self, samples, weights): # chaque point est choisis avec une probabilité égale à son poids
+        return samples[np.random.choice(self.N, self.N, p=weights)]
+    
+    def residual_resampling(self, samples, weights):
+        res = np.zeros_like(samples)
+
+        # on regarde les proba qui ont un poids w >= n/N où n est un entier (le plus grand pour que ce soit vrai)
+        floors = np.floor(weights * self.N)
+        index = 0
+        for i in range(self.N):
+            if floors[i] != 0:
+                # on rajoute à notre resampling n fois le point sachant que w >= n/N
+                res[index:index+int(floors[i])] = samples[i]
+                index += int(floors[i])
+        
+        # pour tout échantillon r = w - n/N donnant le résidu du poids avec n le nombre de fois que l'échantillon fais déjà parti du resampling
+        residuals = weights - floors/self.N
+        residuals /= np.sum(residuals)
+
+        # on choisis les points restants en appliquant multinomial sur base des résidus
+        res[index:] = samples[np.digitize(np.random.rand(self.N-index), bins=np.cumsum(residuals))]
+        
+        return res
+    
+    def systematic_resampling(self, samples, weights): # tous les points sont choisis de manière à être séparés de n/N où n est un entier
+        uniforms = np.random.rand() / self.N + np.arange(self.N) / self.N 
+        return samples[np.digitize(uniforms, bins=np.cumsum(weights))]
+
 
 class LorentzSystem:
     def __init__(self, sigma, rho, beta, initial_state, N, h):
@@ -113,8 +157,10 @@ plt.rcParams['font.family'] = 'serif'
 ax = fig.add_subplot(projection="3d")
 ax.scatter(states[:, 0], states[:, 1], states[:, 2], marker='o', s=1, alpha=0.8)
 ax.scatter(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2], marker='o', s=1, alpha=0.8)
+# ax.plot(states[:, 0], states[:, 1], states[:, 2])
+# ax.plot(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2])
 plt.xlabel('x')
 plt.ylabel('y')
-plt.legend(['True system'])
+plt.legend(['True system', 'Filtered system'])
 plt.draw()
 plt.show()
