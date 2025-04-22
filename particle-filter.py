@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 import plotly.graph_objects as go
 import plotly.io as pio
+import time
 
 class LorentzParticlesFilter:
     def __init__(self, observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta, resampling_algorithm="multinomial"):
@@ -101,8 +102,11 @@ class LorentzSystem:
         self.rho = rho
         self.beta = beta
         self.state0 = initial_state
-        self.t = np.arange(0.0, N, h)
+        self.N = N
         self.states = None
+
+    def put_h(self, h):
+        self.h = h
     
     def f(self, state, t):
         x, y, z = state
@@ -111,43 +115,60 @@ class LorentzSystem:
         c = x * y - self.beta * z
         return np.array([a, b, c])
     
-    def compute(self, t):
+    def compute(self):
+        t = np.arange(0.0, self.N, self.h)
         self.states = odeint(self.f, self.state0, t)
         return self.states
     
 
-# Parameters
-sigma = 10.0
-rho = 28.0
-beta = 8.0 / 3.0
-initial_state = [1.0, 1.0, 1.0]
-tmax = 100
-h = 0.02
-
-measurement_noise = 1
-process_noise = 0.1
-N = 100
-
-
+class MeasuringTools:
+    def __init__(self, real_states, approx_states):
+        self.real_states = real_states
+        self.approx_states = approx_states
     
-# Lorentz system
-lorentzSystem = LorentzSystem(sigma, rho, beta, initial_state, tmax, h)
-states = lorentzSystem.compute(lorentzSystem.t)
-observations = np.random.normal(states, measurement_noise, (len(states), 3))
+    def distance_p2p(self):
+        distances = np.linalg.norm(self.real_states - self.approx_states, axis=1)
+        return distances, np.mean(distances), np.std(distances)
+    
+    def hellinger_distance(self):
+        pass
 
-# Particle filter
-particleFilter = LorentzParticlesFilter(observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta)
-filtered_observation = particleFilter.compute()
+    def TVD(self):
+        pass
+    
+if __name__ == "__main__":
+    # Parameters
+    sigma = 10.0
+    rho = 28.0
+    beta = 8.0 / 3.0
+    initial_state = [1.0, 1.0, 1.0]
+    tmax = 100
+    h = 0.01
 
-fig = plt.figure()
-plt.rcParams['font.family'] = 'serif'
-ax = fig.add_subplot(projection="3d")
-ax.scatter(states[:, 0], states[:, 1], states[:, 2], marker='o', s=1, alpha=0.8)
-ax.scatter(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2], marker='o', s=1, alpha=0.8)
-# ax.plot(states[:, 0], states[:, 1], states[:, 2])
-# ax.plot(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2])
-plt.xlabel('x')
-plt.ylabel('y')
-plt.legend(['True system', 'Filtered system'])
-plt.draw()
-plt.show()
+    measurement_noise = 1
+    process_noise = 0.1
+    N = 100
+
+    start = time.time()
+    # Lorentz system
+    lorentzSystem = LorentzSystem(sigma, rho, beta, initial_state, tmax, h)
+    states = lorentzSystem.compute()
+    observations = np.random.normal(states, measurement_noise, (len(states), 3))
+    print("Time to compute the system: ", time.time() - start)
+    # Particle filter
+    particleFilter = LorentzParticlesFilter(observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta)
+    filtered_observation = particleFilter.compute()
+    print("Time to compute the filter: ", time.time() - start)
+
+    fig = plt.figure()
+    plt.rcParams['font.family'] = 'serif'
+    ax = fig.add_subplot(projection="3d")
+    ax.scatter(states[:, 0], states[:, 1], states[:, 2], marker='o', s=1, alpha=0.8)
+    ax.scatter(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2], marker='o', s=1, alpha=0.8)
+    # ax.plot(states[:, 0], states[:, 1], states[:, 2])
+    # ax.plot(filtered_observation[:, 0], filtered_observation[:, 1], filtered_observation[:, 2])
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend(['True system', 'Filtered system'])
+    plt.draw()
+    plt.show()
