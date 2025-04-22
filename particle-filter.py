@@ -4,19 +4,6 @@ from scipy.integrate import odeint
 import plotly.graph_objects as go
 import plotly.io as pio
 
-
-'''
-Si tu te demandes pourquoi j'ai mis des classes, c'est parce que je le voulais. 
-Il n'y a pas d'autres raisons 
-(à part la modularité lors des tests et le fait qu'on pourra faire les plots depuis un autre fichier)
-
-La dégénéréscence est assez vénère donc il va falloir faire du resampling (je te laisse le faire, au pire on le fait à deux).
-(Ne regarde pas trop la première partie du projet, j'en suis pas fier (moins de 24h pour le faire...) mais il y a des sources intéressantes)
-
-
-Oui j'ai utilisé ce mode de commentaires pour te faire chier
-'''
-
 class LorentzParticlesFilter:
     def __init__(self, observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta, resampling_algorithm="multinomial"):
         self.size = len(observations)
@@ -57,20 +44,20 @@ class LorentzParticlesFilter:
         return state + self.h * (f1 + 2 * f2 + 2 * f3 + f4) / 6 + np.random.normal(0, self.process_noise, 3)
                     
     def compute(self):
-        # Step 1 and 2 (We draw N samples from the prior and initialize the weights)
+        # Step 1 and 2 (On choisit N samples du prior et on init les poids à 1/N)
         samples = np.random.normal(self.initial_state, self.measurement_noise, (self.N, 3))
         weights = np.ones(self.N) / self.N
 
-        # Step 3 and 4 (le step 3 sert juste à mettre n à 0 mais on s'en fout, Draw N samples from the importance distribution)
+        # Step 3 and 4 (le step 3 sert juste à mettre n à 0, On choisi N sample de la distribution)
         for n in range(self.size):
             for i in range(self.N): samples[i] = self.RK_discretize(samples[i])
-            # Step 5 (Update the weights) (merci à la loi de Bayes)
+            # Step 5 (màj des weights) (merci à la loi de Bayes)
             for i in range(self.N):
                 diff = self.observations[n] - samples[i]
                 weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
-            # Step 6 (Ocus Pocos we juste normalize the weights -us)
+            # Step 6 (Normalisation des poids)
             weights /= np.sum(weights)
-            # Step 7 (Dot c'est quand même plus rapide que de faire une boucle for)
+            # Step 7
             self.filtered_states[n] = np.dot(weights, samples)
 
             if 1 / np.dot(weights, weights) < self.resampling_treshold:
