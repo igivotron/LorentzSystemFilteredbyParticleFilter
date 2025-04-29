@@ -23,9 +23,7 @@ N = 100
 # 0 : Influence de la longueur de pas
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
-
 experience = 2
-
 
 
 toolBox = MeasuringTools(None, None)
