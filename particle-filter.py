@@ -29,6 +29,16 @@ class LorentzParticlesFilter:
             self.resampling = self.systematic_resampling
         else:
             raise NotImplementedError()
+        
+    def change_resampling(self, resampling_algorithm):
+        if resampling_algorithm == "multinomial":
+            self.resampling = self.multinommial_resampling
+        elif resampling_algorithm == "residual":
+            self.resampling = self.residual_resampling
+        elif resampling_algorithm == "systematic":
+            self.resampling = self.systematic_resampling
+        else:
+            raise NotImplementedError()
     
     def f(self, state):
         x, y, z = state
@@ -48,7 +58,6 @@ class LorentzParticlesFilter:
         # Step 1 and 2 (On choisit N samples du prior et on init les poids à 1/N)
         samples = np.random.normal(self.initial_state, self.measurement_noise, (self.N, 3))
         weights = np.ones(self.N) / self.N
-
         # Step 3 and 4 (le step 3 sert juste à mettre n à 0, On choisi N sample de la distribution)
         for n in range(self.size):
             for i in range(self.N): samples[i] = self.RK_discretize(samples[i])
@@ -57,6 +66,7 @@ class LorentzParticlesFilter:
                 diff = self.observations[n] - samples[i]
                 weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
             # Step 6 (Normalisation des poids)
+
             weights /= np.sum(weights)
             # Step 7
             self.filtered_states[n] = np.dot(weights, samples)
@@ -104,8 +114,6 @@ class LorentzSystem:
         self.state0 = initial_state
         self.N = N
         self.states = None
-
-    def put_h(self, h):
         self.h = h
     
     def f(self, state, t):
