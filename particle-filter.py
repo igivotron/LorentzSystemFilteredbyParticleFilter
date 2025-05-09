@@ -61,10 +61,13 @@ class LorentzParticlesFilter:
         # Step 3 and 4 (le step 3 sert juste à mettre n à 0, On choisi N sample de la distribution)
         for n in range(self.size):
             for i in range(self.N): samples[i] = self.RK_discretize(samples[i])
-            # Step 5 (màj des weights) (merci à la loi de Bayes)
+            # Step 5 (màj des weights) 
             for i in range(self.N):
                 diff = self.observations[n] - samples[i]
                 weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
+                # diff = self.observations[n] - samples
+                # exp = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.measurement_noise ** 2))
+                # weights*= exp
             # Step 6 (Normalisation des poids)
 
             weights /= np.sum(weights)

@@ -23,7 +23,7 @@ N = 100
 # 0 : Influence de la longueur de pas
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
-experience = 2
+experience = 1
 
 
 toolBox = MeasuringTools(None, None)
@@ -47,16 +47,19 @@ if experience == 0:
         std_distance[i] = std
         print(f"Mean distance for h={h[i]}: {mean}, Std distance: {std}")
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(h, mean_distance, label='Mean Distance', marker='o')
-    plt.plot(h, std_distance, label='Standard Deviation', marker='o')
-    plt.grid()
-    plt.xlabel('Step Size (h)')
-    plt.ylabel('Distance')
-    plt.title('Influence of Step Size on Distance')
-    plt.legend()
-    plt.savefig("step_size.png")
-    plt.show() 
+    var = np.square(std_distance)
+    data = np.array([h, mean_distance, std_distance, var]).T
+    np.savetxt("./data/step_size.csv", data, delimiter=";", header="Step_Size,Mean,Std,Var", comments='')
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(h, mean_distance, label='Mean Distance', marker='o')
+    # plt.plot(h, std_distance, label='Standard Deviation', marker='o')
+    # plt.grid()
+    # plt.xlabel('Step Size (h)')
+    # plt.ylabel('Distance')
+    # plt.title('Influence of Step Size on Distance')
+    # plt.legend()
+    # plt.savefig("./figures/step_size.png")
+    # plt.show() 
 
 if experience == 1:
     process_noise = np.arange(0.5, 50, 0.5)
@@ -77,16 +80,23 @@ if experience == 1:
         std_distance[i] = std
         print(f"Mean distance for process noise={process_noise[i]}: {mean}, Std distance: {std}")
     
-    plt.figure(figsize=(10, 5))
-    plt.plot(process_noise, mean_distance, label='Mean Distance', marker='o')
-    plt.plot(process_noise, std_distance, label='Standard Deviation', marker='o')
-    plt.xlabel('Process Noise')
-    plt.ylabel('Distance')
-    plt.title('Influence of Process Noise on Distance')
-    plt.legend()
-    plt.grid()
-    plt.savefig("process_noise.png")
-    plt.show()
+    var = np.square(std_distance)
+
+    data = np.array([process_noise, mean_distance, std_distance, var]).T
+    np.savetxt("./data/process_noise_IAO.csv", data, delimiter=";", header="Process_Noise,Mean,Std,Var", comments='')
+
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(process_noise, mean_distance, label='Mean Distance', marker='o')
+    # # plt.plot(process_noise, std_distance, label='Standard Deviation', marker='o')
+    # plt.plot(process_noise, var, label='Variance', marker='o')
+    
+    # plt.xlabel('Process Noise')
+    # plt.ylabel('Distance')
+    # plt.title('Influence of Process Noise on Distance')
+    # plt.legend()
+    # plt.grid()
+    # plt.savefig("process_noise.png")
+    # plt.show()
     
 if experience == 2:
     LorentzSystem.h = 0.02
@@ -111,17 +121,20 @@ if experience == 2:
         std_distance[i] = std
         print(f"Mean distance for resampling method={resampling_methods[i]}: {mean}, Std distance: {std}")
     
-    plt.figure(figsize=(10, 5))
-    plt.plot(resampling_methods, mean_distance, label='Mean Distance', marker='o')
-    plt.plot(resampling_methods, std_distance, label='Standard Deviation', marker='o')
-    # for i in range(len(resampling_methods)): plt.plot(distances[i], label=resampling_methods[i])
-
-    plt.xlabel('Resampling Method')
-    plt.ylabel('Distance')
-    plt.title('Influence of Resampling Method on Distance')
-    plt.legend()
-    plt.grid()
-    plt.savefig("resampling.png")
-    plt.show()
+    var = np.square(std_distance)
+    data = np.array([resampling_methods, mean_distance, std_distance, var]).T
+    np.savetxt("./data/resampling.csv", data, delimiter=";", header="Resampling_Method,Mean,Std,Var", comments='')
+    
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(resampling_methods, mean_distance, label='Mean Distance', marker='o')
+    # plt.plot(resampling_methods, std_distance, label='Standard Deviation', marker='o')
+    # # for i in range(len(resampling_methods)): plt.plot(distances[i], label=resampling_methods[i])
+    # plt.xlabel('Resampling Method')
+    # plt.ylabel('Distance')
+    # plt.title('Influence of Resampling Method on Distance')
+    # plt.legend()
+    # plt.grid()
+    # plt.savefig("resampling.png")
+    # plt.show()
 
 
