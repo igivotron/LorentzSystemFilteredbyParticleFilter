@@ -5,10 +5,7 @@ ParticleFilter = particle_filter.LorentzParticlesFilter
 LorentzSystem = particle_filter.LorentzSystem
 MeasuringTools = particle_filter.MeasuringTools
 import numpy as np
-import matplotlib.pyplot as plt
 import time
-import math
-from tqdm import tqdm
 
 
 # Parameters
@@ -20,7 +17,7 @@ tmax = 100
 h = 0.02
 
 measurement_noise = 1
-process_noise = 1
+process_noise = 10
 N = 100
 
 # Experiences :
@@ -56,7 +53,7 @@ if experience == 0:
 
     var = np.square(std_distance)
     data = np.array([h, mean_distance, std_distance, var]).T
-    np.savetxt("./data/step_size.csv", data, delimiter=";", header="Step_Size,Mean,Std,Var", comments='')
+    np.savetxt("./data/step_sizeN100.csv", data, delimiter=";", header="Step_Size,Mean,Std,Var", comments='')
     # plt.figure(figsize=(10, 5))
     # plt.plot(h, mean_distance, label='Mean Distance', marker='o')
     # plt.plot(h, std_distance, label='Standard Deviation', marker='o')
@@ -121,10 +118,10 @@ if experience == 2:
     var_methods = np.zeros(len(resampling_methods))
     temps = np.zeros(len(resampling_methods))
 
-    for i in tqdm(range(len(resampling_methods))):
+    for i in range(len(resampling_methods)):
         filter.change_resampling(resampling_methods[i])
         l1, l2 = [], []
-        for j in tqdm(range(loop)):
+        for j in range(loop):
             start = time.time()
             filtered_observation = filter.compute()
             l1.append(time.time() - start)

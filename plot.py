@@ -11,6 +11,7 @@ experience = 0
 
 if experience == 0:
     step_size = np.loadtxt("./data/step_size.csv", delimiter=";", skiprows=1)
+    
     h = step_size[:, 0]
     mean_distance = step_size[:, 1]
     std_distance = step_size[:, 2]
