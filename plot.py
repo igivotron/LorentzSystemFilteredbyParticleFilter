@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
 
-experience = 0
+experience = 2
 
 if experience == 0:
     step_size = np.loadtxt("./data/step_size.csv", delimiter=";", skiprows=1)
@@ -61,5 +61,26 @@ if experience == 1:
     plt.show()
 
 if experience == 2:
-    pass
+    resampling_methods = ['multinomial', 'residual', 'systematic']
+    resampling_data = np.loadtxt("./data/resampling.csv", delimiter=";", skiprows=1)
+    mean_distance = resampling_data[:, 0]
+    std_distance = resampling_data[:, 1]
+    var = resampling_data[:, 2]
+    time = resampling_data[:, 3]
+
+    fig, ax1 = plt.subplots()
+    fig.set_size_inches(10, 5)
+    ax2 = ax1.twinx()
+    ax1.plot(resampling_methods, mean_distance, label='Mean Distance', marker='o')
+    ax1.plot(resampling_methods, var, label='Variance', marker='o', color='orange')
+    ax2.plot(resampling_methods, time, label='Time', marker='o', color='green')
+    ax1.set_xlabel('Resampling Method')
+    ax1.set_ylabel('Mean Distance')
+    ax2.set_ylabel('Time')
+    ax1.set_title('Influence of Resampling Method on Distance')
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+    ax1.grid()
+    plt.savefig("./figures/resampling.png")
+    plt.show()
 

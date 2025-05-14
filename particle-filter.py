@@ -62,12 +62,13 @@ class LorentzParticlesFilter:
         for n in range(self.size):
             for i in range(self.N): samples[i] = self.RK_discretize(samples[i])
             # Step 5 (màj des weights) 
-            for i in range(self.N):
-                diff = self.observations[n] - samples[i]
-                weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
-                # diff = self.observations[n] - samples
-                # exp = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.measurement_noise ** 2))
-                # weights*= exp
+            diff = self.observations[n] - samples
+            exp = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.measurement_noise ** 2))
+            weights*= exp
+            # for i in range(self.N):
+            #     diff = self.observations[n] - samples[i]
+            #     weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
+
             # Step 6 (Normalisation des poids)
 
             weights /= np.sum(weights)
@@ -170,6 +171,10 @@ if __name__ == "__main__":
     particleFilter = LorentzParticlesFilter(observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta)
     filtered_observation = particleFilter.compute()
     print("Time to compute the filter: ", time.time() - start)
+
+    tool = MeasuringTools(states, filtered_observation)
+    distances, mean, std = tool.distance_p2p()
+    print(f"Mean distance: {mean}, Std distance: {std}")
 
     fig = plt.figure()
     plt.rcParams['font.family'] = 'serif'

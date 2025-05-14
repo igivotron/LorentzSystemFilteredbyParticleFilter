@@ -3,3 +3,7 @@ Project Presentation.pdf
 Projet_LINMA1731_2025.pdf
 Project_student.py
 __pycache__
+./data/process_noise.csv
+./data/resampling.csv
+./data/step_size.csv
+./data/
