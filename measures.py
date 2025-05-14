@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import math
+from tqdm import tqdm
+
 
 # Parameters
 sigma = 10.0
@@ -112,66 +114,28 @@ if experience == 2:
 
     loop = 10
     mean_distance_methods = np.zeros(len(resampling_methods))
-    
-    for i in range(len(resampling_methods)):
-        filter.change_resampling(resampling_methods[i])
-        l1, l2, l3, l4 = [], [], [], []
-        for j in range(loop):
-            start = time.time()
-            filtered_observation = filter.compute()
-            l1.append(start-time.time())
-
-
-    
-if experience == 2:
-    LorentzSystem.h = 0.02
-    measurement_noise = 1
-    resampling_methods = ['multinomial', 'residual', 'systematic']
-    states = LorentzSystem.compute()
-    observations = np.random.normal(states, measurement_noise, (len(states), 3))
-    toolBox.real_states = states
-    filter = ParticleFilter(observations, N, h, measurement_noise, process_noise, initial_state, sigma, rho, beta)
-
-    loop = 10
-    mean_distance = np.zeros(len(resampling_methods))
-    std_distance = np.zeros(len(resampling_methods))
-    distances = [[] for _ in range(len(resampling_methods))]
+    std_distance_methods = np.zeros(len(resampling_methods))
+    var_methods = np.zeros(len(resampling_methods))
     temps = np.zeros(len(resampling_methods))
-    for i in range(len(resampling_methods)):
-        # print(f"Computing for resampling method={resampling_methods[i]}")
-        filter.change_resampling(resampling_methods[i])
 
-        l1, l2, l3, l4 = [], [], [], []
-        for j in range(loop):
+    for i in tqdm(range(len(resampling_methods))):
+        filter.change_resampling(resampling_methods[i])
+        l1, l2 = [], []
+        for j in tqdm(range(loop)):
             start = time.time()
             filtered_observation = filter.compute()
+            l1.append(time.time() - start)
             toolBox.approx_states = filtered_observation
-            distance, mean, std = toolBox.distance_p2p()
-            print(f"Mean distance for resampling method={resampling_methods[i]}: {mean}, Std distance: {std}")
-            print(distance)
-            l2.append(mean)
-            l3.append(std)
-            l4.append(time.time() - start)
-
-        mean_std_distance = np.mean(l2)
-        mean_var = np.mean(l3)
-        mean_temps = np.mean(l4)
-
+            distance, _, _ = toolBox.distance_p2p()
+            l2.append(distance)
         
+        temps[i] = np.mean(l1)
+        mean_distance_methods[i] = np.mean(l2)
+        std_distance_methods[i] = np.std(l2)
+        var_methods[i] = np.var(l2)
 
-        # filtered_observation = filter.compute()
-        # temps[i] = time.time() - start
-        # toolBox.approx_states = filtered_observation
-        # distance, mean, std = toolBox.distance_p2p()
-        # distances[i] = distance
-        # mean_distance[i] = mean
-        # std_distance[i] = std
-        # var = np.square(std_distance)
-        # print(f"Mean distance for resampling method={resampling_methods[i]}: {mean}, Std distance: {std}")
-
-
-
-    data = np.array([mean_mean_distance, mean_std_distance, mean_var, mean_temps]).T
+    
+    data = np.array([mean_distance_methods, std_distance_methods, var_methods, temps]).T
     np.savetxt("./data/resampling.csv", data, delimiter=";", header="Mean,Std,Var", comments='')
     
 
