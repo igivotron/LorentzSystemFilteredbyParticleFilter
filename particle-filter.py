@@ -27,6 +27,8 @@ class LorentzParticlesFilter:
             self.resampling = self.residual_resampling
         elif resampling_algorithm == "systematic":
             self.resampling = self.systematic_resampling
+        elif resampling_algorithm == "temoin":
+            self.resampling = self.temoin
         else:
             raise NotImplementedError()
         
@@ -37,6 +39,8 @@ class LorentzParticlesFilter:
             self.resampling = self.residual_resampling
         elif resampling_algorithm == "systematic":
             self.resampling = self.systematic_resampling
+        elif resampling_algorithm == "temoin":
+            self.resampling = self.temoin
         else:
             raise NotImplementedError()
     
@@ -70,7 +74,6 @@ class LorentzParticlesFilter:
             #     weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
 
             # Step 6 (Normalisation des poids)
-
             weights /= np.sum(weights)
             # Step 7
             self.filtered_states[n] = np.dot(weights, samples)
@@ -80,6 +83,9 @@ class LorentzParticlesFilter:
                 weights = np.ones(self.N) / self.N
         
         return self.filtered_states
+    
+    def temoin(self, samples, weights):
+        return samples
 
     def multinommial_resampling(self, samples, weights): # chaque point est choisis avec une probabilité égale à son poids
         return samples[np.random.choice(self.N, self.N, p=weights)]

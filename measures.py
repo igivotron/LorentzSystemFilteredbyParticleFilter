@@ -20,31 +20,34 @@ tmax = 100
 h = 0.02
 
 measurement_noise = 1
-process_noise = 0.1
+process_noise = 1
 N = 100
 
 # Experiences :
 # 0 : Influence de la longueur de pas
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
-experience = 2
+experience = 0
 
 
 toolBox = MeasuringTools(None, None)
 LorentzSystem = LorentzSystem(sigma, rho, beta, initial_state, tmax, 1)
 
 if experience == 0:
-    h= [0.01, 0.02, 0.05, 0.1]
+    h= np.arange(0.0001, 0.04, 0.001)
     mean_distance = np.zeros(len(h))
     std_distance = np.zeros(len(h))
+    states = LorentzSystem.compute()
+    toolBox.real_states = states
+
 
     for i in range(len(h)):
         print(f"Computing for h={h[i]}")
-        LorentzSystem.h = h[i]
-        states = LorentzSystem.compute()
+        # LorentzSystem.h = h[i]
+        # states = LorentzSystem.compute()
+        # toolBox.real_states = states
         observations = np.random.normal(states, measurement_noise, (len(states), 3))
         filtered_observation = ParticleFilter(observations, N, h[i], measurement_noise, process_noise, initial_state, sigma, rho, beta).compute()
-        toolBox.real_states = states
         toolBox.approx_states = filtered_observation
         _, mean, std = toolBox.distance_p2p()
         mean_distance[i] = mean
@@ -106,7 +109,7 @@ if experience == 1:
 if experience == 2:
     LorentzSystem.h = 0.02
     measurement_noise = 1
-    resampling_methods = ['multinomial', 'residual', 'systematic']
+    resampling_methods = ['temoin', 'multinomial', 'residual', 'systematic']
     states = LorentzSystem.compute()
     observations = np.random.normal(states, measurement_noise, (len(states), 3))
     toolBox.real_states = states
