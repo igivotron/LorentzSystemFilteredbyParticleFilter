@@ -6,6 +6,7 @@ LorentzSystem = particle_filter.LorentzSystem
 MeasuringTools = particle_filter.MeasuringTools
 import numpy as np
 import time
+import argparse
 
 
 # Parameters
@@ -24,7 +25,10 @@ N = 100
 # 0 : Influence de la longueur de pas
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
-experience = 1
+parser = argparse.ArgumentParser(description='Particle Filter Experiments')
+parser.add_argument('--exp', type=int, default=0, help='Experience number (0, 1, or 2)')
+args = parser.parse_args()
+experience = args.experience
 
 
 toolBox = MeasuringTools(None, None)
@@ -53,7 +57,7 @@ if experience == 0:
 
     var = np.square(std_distance)
     data = np.array([h, mean_distance, std_distance, var]).T
-    np.savetxt("./data/step_sizeN100mes1.csv", data, delimiter=";", header="Step_Size,Mean,Std,Var", comments='')
+    np.savetxt("./data/step_sizeN100M1P01.csv", data, delimiter=";", header="Step_Size,Mean,Std,Var", comments='')
 
 
 if experience == 1:
@@ -78,7 +82,7 @@ if experience == 1:
     var = np.square(std_distance)
 
     data = np.array([process_noise, mean_distance, std_distance, var]).T
-    np.savetxt("./data/measurement_noiseN100mes1.csv", data, delimiter=";", header="Process_Noise,Mean,Std,Var,Time", comments='')
+    np.savetxt("./data/processN100M1.csv", data, delimiter=";", header="Process_Noise,Mean,Std,Var,Time", comments='')
 
     # plt.figure(figsize=(10, 5))
     # plt.plot(process_noise, mean_distance, label='Mean Distance', marker='o')
@@ -128,7 +132,7 @@ if experience == 2:
 
     
     data = np.array([mean_distance_methods, std_distance_methods, var_methods, temps]).T
-    np.savetxt("./data/resampling_mes1_N100.csv", data, delimiter=";", header="Mean,Std,Var", comments='')
+    np.savetxt("./data/resamplingN100M1P01.csv", data, delimiter=";", header="Mean,Std,Var", comments='')
     
 
 

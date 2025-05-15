@@ -67,7 +67,7 @@ class LorentzParticlesFilter:
             diff = self.observations[n] - samples
             dist = np.sum(np.square(diff), axis=1)
             exp = np.exp(-(dist-np.min(dist)) / (2 * self.measurement_noise ** 2))
-            weights*= exp
+            weights*= 1/(np.sqrt(2*np.pi)*self.measurement_noise) * exp
             # for i in range(self.N):
             #     diff = self.observations[n] - samples[i]
             #     weights[i] *= np.exp(-np.dot(diff, diff) / (2 * self.measurement_noise ** 2))
