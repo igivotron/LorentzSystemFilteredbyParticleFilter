@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
 
-experience = 0
+experience = 1
 
 if experience == 0:
     step_size = np.loadtxt("./data/step_size.csv", delimiter=";", skiprows=1)
@@ -42,30 +42,24 @@ if experience == 1:
 
     # two scales
     fig, ax1 = plt.subplots()
-    fig.set_size_inches(10, 5)
+    fig.set_size_inches(7, 4)
     ax2 = ax1.twinx()
     ax1.plot(noise, mean_distance, label='Mean Distance', marker='o')
     ax2.plot(noise, var, label='Variance', marker='o', color='orange')
-    ax1.set_xlabel('Process Noise')
+    ax1.set_xlabel('Measurement Noise')
     ax1.set_ylabel('Mean Distance')
     ax2.set_ylabel('Variance')
-    ax1.set_title('Influence of Process Noise on Distance')
-    ax1.legend(loc='upper left')
-    ax2.legend(loc='upper right')
+    ax1.set_title('Influence of Measurement Noise on Distance')
+    ax1.legend(loc='upper right')
+    ax2.legend(loc='upper center')
     ax1.grid()
 
-
-    plt.xlabel('Process Noise')
-    plt.ylabel('Distance')
-    plt.title('Influence of Process Noise on Distance')
-    plt.legend()
-    plt.grid()
-    plt.savefig("./figures/process_noise.png")
+    plt.savefig("./figures/measurement_noise.png")
     plt.show()
 
 if experience == 2:
     resampling_methods = ['temoin', 'multinomial', 'residual', 'systematic']
-    resampling_data = np.loadtxt("./data/resampling.csv", delimiter=";", skiprows=1)
+    resampling_data = np.loadtxt("./data/resampling_mes10_N100.csv", delimiter=";", skiprows=1)
     mean_distance = resampling_data[:, 0]
     std_distance = resampling_data[:, 1]
     var = resampling_data[:, 2]
@@ -80,10 +74,12 @@ if experience == 2:
     ax1.set_xlabel('Resampling Method')
     ax1.set_ylabel('Mean Distance')
     ax2.set_ylabel('Time')
-    ax1.set_title('Influence of Resampling Method on Distance')
-    ax1.legend(loc='upper left')
-    ax2.legend(loc='upper right')
+    ax1.set_title('Influence of Resampling Method on Distance and execution Time')
+    ax1.legend(loc='center right')
+    ax2.legend(loc='center left')
+
+    
     ax1.grid()
-    plt.savefig("./figures/resampling.png")
+    plt.savefig("./figures/resampling_mes10_N100.png")
     plt.show()
 

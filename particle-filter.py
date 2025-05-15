@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-import plotly.graph_objects as go
-import plotly.io as pio
 import time
 
 class LorentzParticlesFilter:
