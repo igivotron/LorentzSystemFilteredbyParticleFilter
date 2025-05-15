@@ -15,11 +15,6 @@ rho = 28.0
 beta = 8.0 / 3.0
 initial_state = [1.0, 1.0, 1.0]
 tmax = 100
-h = 0.02
-
-measurement_noise = 1
-process_noise = .1
-N = 100
 
 # Experiences :
 # 0 : Influence de la longueur de pas
@@ -27,8 +22,16 @@ N = 100
 # 2 : Influence de la méthode de resampling
 parser = argparse.ArgumentParser(description='Particle Filter Experiments')
 parser.add_argument('--exp', type=int, default=0, help='Experience number (0, 1, or 2)')
+parser.add_argument('--N', type=int, default=100, help='Number of particles')
+parser.add_argument('--h', type=float, default=0.02, help='Step size')
+parser.add_argument('--process_noise', type=float, default=0.1, help='Process noise')
+parser.add_argument('--measurement_noise', type=float, default=1.0, help='Measurement noise')
 args = parser.parse_args()
 experience = args.experience
+N = args.N
+h = args.h
+measurement_noise = args.measurement_noise
+process_noise = args.process_noise
 
 
 toolBox = MeasuringTools(None, None)
