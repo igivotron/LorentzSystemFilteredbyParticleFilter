@@ -27,11 +27,11 @@ parser.add_argument('--h', type=float, default=0.02, help='Step size')
 parser.add_argument('--p', type=float, default=0.1, help='Process noise')
 parser.add_argument('--m', type=float, default=1.0, help='Measurement noise')
 args = parser.parse_args()
-experience = args.experience
+experience = args.exp
 N = args.N
 h = args.h
-measurement_noise = args.measurement_noise
-process_noise = args.process_noise
+measurement_noise = args.m
+process_noise = args.p
 
 
 toolBox = MeasuringTools(None, None)
