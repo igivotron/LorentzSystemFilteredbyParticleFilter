@@ -17,21 +17,21 @@ tmax = 100
 h = 0.02
 
 measurement_noise = 1
-process_noise = 1
+process_noise = .1
 N = 100
 
 # Experiences :
 # 0 : Influence de la longueur de pas
 # 1 : Influence du bruit de processus
 # 2 : Influence de la méthode de resampling
-experience = 2
+experience = 1
 
 
 toolBox = MeasuringTools(None, None)
 LorentzSystem = LorentzSystem(sigma, rho, beta, initial_state, tmax, h)
 
 if experience == 0:
-    h= np.arange(0.0001, 0.04, 0.001)
+    h = np.arange(0.015, 0.025, 0.00025)
     mean_distance = np.zeros(len(h))
     std_distance = np.zeros(len(h))
     states = LorentzSystem.compute()
@@ -57,7 +57,7 @@ if experience == 0:
 
 
 if experience == 1:
-    process_noise = np.arange(0.5, 50, 0.5)
+    process_noise = np.arange(0.005, 0.2, 0.005)
     mean_distance = np.zeros(len(process_noise))
     std_distance = np.zeros(len(process_noise))
     states = LorentzSystem.compute()

@@ -65,7 +65,8 @@ class LorentzParticlesFilter:
             for i in range(self.N): samples[i] = self.RK_discretize(samples[i])
             # Step 5 (màj des weights) 
             diff = self.observations[n] - samples
-            exp = np.exp(-np.sum(diff ** 2, axis=1) / (2 * self.measurement_noise ** 2))
+            dist = np.sum(np.square(diff), axis=1)
+            exp = np.exp(-(dist-np.min(dist)) / (2 * self.measurement_noise ** 2))
             weights*= exp
             # for i in range(self.N):
             #     diff = self.observations[n] - samples[i]
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     beta = 8.0 / 3.0
     initial_state = [1.0, 1.0, 1.0]
     tmax = 100
-    h = 0.01
+    h = 0.02
 
     measurement_noise = 1
     process_noise = 0.1
