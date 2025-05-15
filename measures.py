@@ -24,8 +24,8 @@ parser = argparse.ArgumentParser(description='Particle Filter Experiments')
 parser.add_argument('--exp', type=int, default=0, help='Experience number (0, 1, or 2)')
 parser.add_argument('--N', type=int, default=100, help='Number of particles')
 parser.add_argument('--h', type=float, default=0.02, help='Step size')
-parser.add_argument('--process_noise', type=float, default=0.1, help='Process noise')
-parser.add_argument('--measurement_noise', type=float, default=1.0, help='Measurement noise')
+parser.add_argument('--p', type=float, default=0.1, help='Process noise')
+parser.add_argument('--m', type=float, default=1.0, help='Measurement noise')
 args = parser.parse_args()
 experience = args.experience
 N = args.N
